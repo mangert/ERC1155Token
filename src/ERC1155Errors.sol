@@ -2,16 +2,16 @@
 pragma solidity ^0.8.29;
 
 
-/*ERC1155InsufficientBalance(address sender, uint256 balance, uint256 needed, uint256 tokenId)
+error ERC1155InsufficientBalance(address sender, uint256 balance, uint256 needed, uint256 tokenId);
 
-Indicates an error related to the current balance of a sender. Used in transfers.
+/*Indicates an error related to the current balance of a sender. Used in transfers.
 
 Usage guidelines:
 
-    balance MUST be less than needed for a tokenId.
+    balance MUST be less than needed for a tokenId.*/
 
-ERC1155InvalidSender(address sender)
-
+error ERC1155InvalidSender(address sender);
+/*
 Indicates a failure with the token sender. Used in transfers.
 
 Usage guidelines:
@@ -20,9 +20,9 @@ Usage guidelines:
     MUST NOT be used for approval operations.
     MUST NOT be used for balance or allowance requirements.
         Use ERC1155InsufficientBalance or ERC1155MissingApprovalForAll instead.
-
-ERC1155InvalidReceiver(address receiver)
-
+*/
+error ERC1155InvalidReceiver(address receiver);
+/*
 Indicates a failure with the token receiver. Used in transfers.
 
 Usage guidelines:
@@ -30,26 +30,26 @@ Usage guidelines:
     RECOMMENDED for disallowed transfers to the zero address.
     RECOMMENDED for disallowed transfers to non-ERC1155TokenReceiver contracts or those that reject a transfer. (eg. returning an invalid response in onERC1155Received).
     MUST NOT be used for approval operations.
-
-ERC1155MissingApprovalForAll(address operator, address owner)
-
+*/
+error ERC1155MissingApprovalForAll(address operator, address owner);
+/*
 Indicates a failure with the operator’s approval in a transfer. Used in transfers.
 
 Usage guidelines:
 
     isApprovedForAll(owner, operator) MUST be false for the tokenId’s owner and operator.
-
-ERC1155InvalidApprover(address approver)
-
+*/
+error ERC1155InvalidApprover(address approver);
+/*
 Indicates a failure with the approver of a token to be approved. Used in approvals.
 
 Usage guidelines:
 
     RECOMMENDED for disallowed approvals from the zero address.
     MUST NOT be used for transfer operations.
-
-ERC1155InvalidOperator(address operator)
-
+*/
+error ERC1155InvalidOperator(address operator);
+/*
 Indicates a failure with the operator to be approved. Used in approvals.
 
 Usage guidelines:
@@ -58,7 +58,7 @@ Usage guidelines:
     MUST be used for disallowed approvals to the owner itself.
     MUST NOT be used for transfer operations.
         Use ERC1155InsufficientApproval instead.
-
-ERC1155InvalidArrayLength(uint256 idsLength, uint256 valuesLength)
-
+*/
+error ERC1155InvalidArrayLength(uint256 idsLength, uint256 valuesLength);
+/*
 Indicates an array length mismatch between ids and values in a safeBatchTransferFrom operation. Used in batch transfers.*/
