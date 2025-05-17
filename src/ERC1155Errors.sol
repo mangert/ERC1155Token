@@ -1,7 +1,9 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.29;
 
-
+/**
+ * 
+ */
 error ERC1155InsufficientBalance(address sender, uint256 balance, uint256 needed, uint256 tokenId);
 
 /*Indicates an error related to the current balance of a sender. Used in transfers.
