@@ -17,5 +17,5 @@ interface IERC1155Receiver {
         uint256[] calldata _ids, 
         uint256[] calldata _values, 
         bytes calldata _data
-    )
+    ) external returns(bytes4);
 }
