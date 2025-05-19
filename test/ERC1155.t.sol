@@ -11,6 +11,7 @@ contract ERC1155Test is Test {
         erc1155 = new ERC1155();
         //counter.setNumber(0);
     }
+    
 /*
     function test_Increment() public {
         counter.increment();

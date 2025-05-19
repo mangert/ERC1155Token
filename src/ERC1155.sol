@@ -3,10 +3,11 @@ pragma solidity ^0.8.29;
 
 import "./IERC1155.sol";
 import "./IERC1155MetadataURI.sol";
+import "./IERC1155Mintable.sol";
 import "./IERC1155Receiver.sol";
 import "./ERC1155Errors.sol";
 
-contract ERC1155 is IERC1155, IERC1155MetadataURI {
+contract ERC1155 is IERC1155, IERC1155MetadataURI, IERC1155Mintable {
 
     address private immutable owner; 
 
@@ -19,9 +20,13 @@ contract ERC1155 is IERC1155, IERC1155MetadataURI {
         owner = msg.sender;
     }
 
+    
+
     function uri(uint256 _id) external view returns(string memory){
         return _uri;
     }
+
+    //функции интерфейса IERC1155
 
     function balanceOf(address _owner, uint256 _id) public view returns(uint256) {
         return balances[_id][_owner];
@@ -73,6 +78,19 @@ contract ERC1155 is IERC1155, IERC1155MetadataURI {
         
         _setApprovalForAll(msg.sender, _operator, _approved);
     }
+
+    //функции интерфейса Mintable (TODO)
+    function supportsInterface(bytes4 _interfaceId) public  view  returns (bool) {return true;}
+
+    // Creates a new token type and assings _initialSupply to minter
+    function create(uint256 _initialSupply, string calldata _uri) external returns(uint256 _id) {return 0;}
+
+    // Batch mint tokens. Assign directly to _to[].
+    function mint(uint256 _id, address[] calldata _to, uint256[] calldata _quantities) external {}
+
+    function setURI(string calldata _uri, uint256 _id) external {}
+    
+    //служебные функции
 
     function _safeTransferFrom(
         address _from,
