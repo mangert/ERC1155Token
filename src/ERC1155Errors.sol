@@ -43,3 +43,8 @@ error ERC1155InvalidOperator(address operator);
  * Indicates an array length mismatch between ids and values in a safeBatchTransferFrom operation.
  */
 error ERC1155InvalidArrayLength(uint256 idsLength, uint256 valuesLength);
+
+/**
+ * Indicates an invalid token ID.
+ */
+error ERC1155NonExistentToken(uint256 _id);

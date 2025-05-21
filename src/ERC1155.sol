@@ -14,13 +14,14 @@ contract ERC1155 is IERC1155, IERC1155MetadataURI, IERC1155Mintable {
     mapping (uint256 _ids => mapping (address _owner => uint256)) private balances;
     mapping (address owner => mapping(address operator => bool)) public isApprovedForAll;
 
-    string private _uri;    
+    string private _uri;
+
+    mapping (uint256 id => address creator) public creators;    
+    uint256 public nonce;
     
     constructor() {
         owner = msg.sender;
-    }
-
-    
+    }    
 
     function uri(uint256 _id) external view returns(string memory){
         return _uri;
@@ -83,10 +84,37 @@ contract ERC1155 is IERC1155, IERC1155MetadataURI, IERC1155Mintable {
     function supportsInterface(bytes4 _interfaceId) public  view  returns (bool) {return true;}
 
     // Creates a new token type and assings _initialSupply to minter
-    function create(uint256 _initialSupply, string calldata _uri) external returns(uint256 _id) {return 0;}
+    function create(uint256 _initialSupply, string calldata _uri) external returns(uint256 _id) {
+        _id = ++nonce;
+        creators[_id] = msg.sender;
+        balances[_id][msg.sender] = _initialSupply;
+
+        // Transfer event with mint semantic
+        emit TransferSingle(msg.sender, address(0), msg.sender, _id, _initialSupply);
+
+        if (bytes(_uri).length > 0) //TODO - разобраться, как хранить будем
+            emit URI(_uri, _id);
+        }
 
     // Batch mint tokens. Assign directly to _to[].
-    function mint(uint256 _id, address[] calldata _to, uint256[] calldata _quantities) external {}
+    function mint(uint256 _id, address[] calldata _to, uint256[] calldata _quantities) external {
+        
+        require(_id != 0 && _id <= nonce, ERC1155NonExistentToken(_id));
+        
+        for (uint256 i = 0; i != _to.length; ++i) {
+
+            address to = _to[i];
+            uint256 quantity = _quantities[i];
+
+            // Grant the items to the caller
+            balances[_id][to] += quantity;
+
+            emit TransferSingle(msg.sender, address(0x0), to, _id, quantity);
+
+            _doSafeTransferAcceptanceCheck(msg.sender, to, _id, quantity, '');
+            
+        }
+    }      
 
     function setURI(string calldata _uri, uint256 _id) external {}
     
@@ -164,7 +192,7 @@ contract ERC1155 is IERC1155, IERC1155MetadataURI, IERC1155Mintable {
         address to, 
         uint256 id,
         uint256 value,
-        bytes calldata data
+        bytes memory data
     ) private {
         if(to.code.length > 0){
             try IERC1155Receiver(to).onERC1155Received(from, to, id, value, data) returns(bytes4 response) {
@@ -182,7 +210,7 @@ contract ERC1155 is IERC1155, IERC1155MetadataURI, IERC1155Mintable {
         address to, 
         uint256[] calldata ids,
         uint256[] calldata values,
-        bytes calldata data
+        bytes memory data
     ) private {
         if(to.code.length > 0){
             try IERC1155Receiver(to).onERC1155BatchReceived(from, to, ids, values, data) returns(bytes4 response) {
