@@ -17,10 +17,15 @@ contract ERC1155 is IERC1155, IERC1155MetadataURI, IERC1155Mintable {
     string private _uri;
 
     mapping (uint256 id => address creator) public creators;    
-    uint256 public nonce;
+    uint256 private nonce;
+
+    modifier onlyOwner() {
+        require(msg.sender == owner, ERC1155NotAnOwner(msg.sender));
+        _;        
+    }
     
     constructor() {
-        owner = msg.sender;
+        owner = msg.sender;        
     }    
 
     function uri(uint256 _id) external view returns(string memory){
@@ -84,12 +89,11 @@ contract ERC1155 is IERC1155, IERC1155MetadataURI, IERC1155Mintable {
     function supportsInterface(bytes4 _interfaceId) public  view  returns (bool) {return true;}
 
     // Creates a new token type and assings _initialSupply to minter
-    function create(uint256 _initialSupply, string calldata _uri) external returns(uint256 _id) {
+    function create(uint256 _initialSupply, string calldata _uri) public onlyOwner() returns(uint256 _id) {
         _id = ++nonce;
         creators[_id] = msg.sender;
         balances[_id][msg.sender] = _initialSupply;
-
-        // Transfer event with mint semantic
+        
         emit TransferSingle(msg.sender, address(0), msg.sender, _id, _initialSupply);
 
         if (bytes(_uri).length > 0) //TODO - разобраться, как хранить будем

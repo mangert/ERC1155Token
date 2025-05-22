@@ -14,6 +14,12 @@ error ERC1155InsufficientBalance(address sender, uint256 balance, uint256 needed
 error ERC1155InvalidSender(address sender);
 
 /**
+ * Indicates a failure with the function caller. Used in creates tokens. *   
+ */
+error ERC1155NotAnOwner(address caller);
+
+
+/**
  * Indicates a failure with the token receiver in transfers.
  * Disallowes transfers to the zero address.
  * Disallowes transfers to non-ERC1155TokenReceiver contracts or those that reject a transfer. 
