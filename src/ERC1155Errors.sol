@@ -51,6 +51,11 @@ error ERC1155InvalidOperator(address operator);
 error ERC1155InvalidArrayLength(uint256 idsLength, uint256 valuesLength);
 
 /**
+ * Indicates an array length mismatch between quantities and receivers lenght in a mint operation.
+ */
+error ERC1155InvalidMintArrayLength(uint256 valuesLength, uint256 receiverLength);
+
+/**
  * Indicates an invalid token ID.
  */
 error ERC1155NonExistentToken(uint256 _id);

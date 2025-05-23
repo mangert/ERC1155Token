@@ -98,12 +98,14 @@ contract ERC1155 is IERC1155, IERC1155MetadataURI, IERC1155Mintable {
 
         if (bytes(_uri).length > 0) //TODO - разобраться, как хранить будем
             emit URI(_uri, _id);
-        }
+        }        
 
     // Batch mint tokens. Assign directly to _to[].
     function mint(uint256 _id, address[] calldata _to, uint256[] calldata _quantities) external {
         
         require(_id != 0 && _id <= nonce, ERC1155NonExistentToken(_id));
+
+        require(_to.length == _quantities.length, ERC1155InvalidMintArrayLength(_quantities.length, _to.length));
         
         for (uint256 i = 0; i != _to.length; ++i) {
 
