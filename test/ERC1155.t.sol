@@ -26,6 +26,7 @@ contract ERC1155Test is Test {
         erc1155 = new ERC1155();                        
     }
 
+    //create tests
     function test_create() public {
         
         erc1155.create(initialBalance, exampleUri);
@@ -57,6 +58,7 @@ contract ERC1155Test is Test {
         erc1155.create(initialBalance, exampleUri);
     }
 
+    //mint tests
     function test_mint() public {
         
         erc1155.create(initialBalance, exampleUri);        
@@ -94,6 +96,7 @@ contract ERC1155Test is Test {
         erc1155.mint(1, addresses, quantities);
     }
 
+    //transfer tests
     function test_safeTransferFrom() public {
 
         erc1155.create(initialBalance, exampleUri); 
@@ -106,9 +109,54 @@ contract ERC1155Test is Test {
         uint256 balanceAfter = erc1155.balanceOf(user1, 1);
         
         assertEq(balanceAfter, balanceBefore + amount); 
-
     }
 
+    function test_safeTransferFromRevertWhen_MissingApprovas() public{
+        
+        erc1155.create(initialBalance, exampleUri); 
+        
+        uint256 amount = 50;
+        address owner = address(this);
+
+        vm.expectRevert(abi.encodeWithSelector(ERC1155MissingApprovalForAll.selector, user1, owner));        
+        vm.prank(user1);
+        erc1155.safeTransferFrom(owner, user2, 1, amount, "");
+        
+    }   
+    
+    function test_safeTransferFromRevertWhen_InsufficientBalance() public{
+        
+        erc1155.create(initialBalance, exampleUri);             
+        uint256 amount = 500;    
+        uint256 balanceFrom = erc1155.balanceOf(address(this), 1);
+
+        vm.expectRevert(abi.encodeWithSelector(ERC1155InsufficientBalance.selector, address(this), balanceFrom, amount, 1));        
+        erc1155.safeTransferFrom(address(this), user1, 1, amount, "");
+    }
+    
+    function test_safeTransferFromRevertWhen_InvalidReceiver() public{        
+    
+        erc1155.create(initialBalance, exampleUri);             
+        uint256 amount = 50;    
+        
+        address to = address(0);
+
+        vm.expectRevert(abi.encodeWithSelector(ERC1155InvalidReceiver.selector, to));        
+        erc1155.safeTransferFrom(address(this), to, 1, amount, "");
+    }    
+    
+    function test_safeTransferFromRevertWhen_NonERC155Receiver() public{
+        
+        erc1155.create(initialBalance, exampleUri);             
+        uint256 amount = 50;    
+        
+        address to = address(erc1155);
+
+        vm.expectRevert(abi.encodeWithSelector(ERC1155InvalidReceiver.selector, to));        
+        erc1155.safeTransferFrom(address(this), to, 1, amount, "");
+    }
+
+    //batch transfer tests
     function test_safeBatchTransferFrom() public {
 
         erc1155.create(initialBalance, exampleUri); //1
@@ -133,9 +181,85 @@ contract ERC1155Test is Test {
         
         assertEq(balance2After, balance2Before + amounts[0]); 
         assertEq(balance3After, balance3Before + amounts[1]); 
-
     }
 
+    function test_safeBatchTransferFromRevertWhen_MissingApprovas() public{
+        
+        erc1155.create(initialBalance, exampleUri); 
+        
+        uint256[] memory ids = new uint256[](2);
+        ids[0] = 2;   
+        ids[1] = 3;   
+        
+        uint256[] memory amounts = new uint256[](2);
+        amounts[0] = 20;        
+        amounts[1] = 10;        
+
+        address owner = address(this);
+
+        vm.expectRevert(abi.encodeWithSelector(ERC1155MissingApprovalForAll.selector, user1, owner));        
+        vm.prank(user1);
+        erc1155.safeBatchTransferFrom(owner, user2, ids, amounts, "");
+        
+    }   
+
+    function test_safeBatchTransferFromRevertWhen_InvalidReceiverZero() public{
+        
+        erc1155.create(initialBalance, exampleUri); 
+        
+        uint256[] memory ids = new uint256[](2);
+        ids[0] = 2;   
+        ids[1] = 3;   
+        
+        uint256[] memory amounts = new uint256[](2);
+        amounts[0] = 20;        
+        amounts[1] = 10;        
+
+        address to = address(0);
+
+        vm.expectRevert(abi.encodeWithSelector(ERC1155InvalidReceiver.selector, to));        
+        
+        erc1155.safeBatchTransferFrom(address(this), to, ids, amounts, "");        
+    }
+
+    function test_safeBatchTransferFromRevertWhen_InvalidArraysLength() public{
+        
+        erc1155.create(initialBalance, exampleUri); 
+        
+        uint256[] memory ids = new uint256[](3);
+        ids[0] = 2;   
+        ids[1] = 3;   
+        
+        uint256[] memory amounts = new uint256[](2);
+        amounts[0] = 20;        
+        amounts[1] = 10;        
+
+        address owner = address(this);
+
+        vm.expectRevert(abi.encodeWithSelector(ERC1155InvalidArrayLength.selector, ids.length, amounts.length));                
+        erc1155.safeBatchTransferFrom(owner, user2, ids, amounts, "");        
+    }
+
+    function test_safeBatchTransferFromRevertWhen_NonERC155Receiver() public{
+        
+        erc1155.create(initialBalance, exampleUri);             
+        erc1155.create(initialBalance, exampleUri);            
+        
+        uint256[] memory ids = new uint256[](2);
+        ids[0] = 1;   
+        ids[1] = 2;   
+        
+        uint256[] memory amounts = new uint256[](2);
+        amounts[0] = 20;        
+        amounts[1] = 10;        
+        
+        address to = address(erc1155);
+
+        vm.expectRevert(abi.encodeWithSelector(ERC1155InvalidReceiver.selector, to));        
+        erc1155.safeBatchTransferFrom(address(this), to, ids, amounts, "");
+    }
+
+    //set approvals tests
     function test_setApprovalForAll() public{
         
         address owner = msg.sender;        
@@ -146,6 +270,34 @@ contract ERC1155Test is Test {
         erc1155.setApprovalForAll(user1, true);        
     }
 
-    
+    function test_setApprovalForAllRevertedWhen_InvalidOperatorZero() public {        
+
+        erc1155.create(initialBalance, exampleUri);                       
+        
+        address operator = address(0);
+
+        vm.expectRevert(abi.encodeWithSelector(ERC1155InvalidOperator.selector, operator));        
+        erc1155.setApprovalForAll(operator, true);        
+    }
+
+    function test_setApprovalForAllRevertedWhen_InvalidOperatorSelf() public {        
+
+        erc1155.create(initialBalance, exampleUri);                       
+        
+        address operator = address(this);
+
+        vm.expectRevert(abi.encodeWithSelector(ERC1155InvalidOperator.selector, operator));        
+        erc1155.setApprovalForAll(operator, true);        
+    } 
+
+    //other functions  - TODO
+    function test_setUri() public {
+        erc1155.create(initialBalance, exampleUri); 
+        erc1155.setURI(exampleUri, 1);
+    }
+    function test_supportsInterface() public {
+        erc1155.supportsInterface("0x0");
+    }
+
 
 }

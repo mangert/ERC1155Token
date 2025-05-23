@@ -60,7 +60,10 @@ contract ERC1155 is IERC1155, IERC1155MetadataURI, IERC1155Mintable {
         uint256[] calldata _values, 
         bytes calldata _data
         ) external {
-            require(_from == msg.sender || isApprovedForAll[_from][msg.sender]);
+            require(
+                _from == msg.sender || isApprovedForAll[_from][msg.sender]
+                , ERC1155MissingApprovalForAll(msg.sender, _from) 
+                );
             _safeBatchTransferFrom(_from, _to, _ids, _values, _data);
     }
 
@@ -117,8 +120,7 @@ contract ERC1155 is IERC1155, IERC1155MetadataURI, IERC1155Mintable {
 
             emit TransferSingle(msg.sender, address(0x0), to, _id, quantity);
 
-            _doSafeTransferAcceptanceCheck(msg.sender, to, _id, quantity, '');
-            
+            _doSafeTransferAcceptanceCheck(msg.sender, to, _id, quantity, '');            
         }
     }      
 
@@ -137,14 +139,14 @@ contract ERC1155 is IERC1155, IERC1155MetadataURI, IERC1155Mintable {
             require(_to != address(0), ERC1155InvalidReceiver(_to));
             
             address operator = msg.sender;
-            uint256 fromBalance = balanceOf(_from, _id);
+            uint256 balanceFrom = balanceOf(_from, _id);
 
-            require(_value <= fromBalance, ERC1155InsufficientBalance(operator, fromBalance, _value, _id));
+            require(_value <= balanceFrom, ERC1155InsufficientBalance(operator, balanceFrom, _value, _id));
             
             _doSafeTransferAcceptanceCheck(_from, _to, _id, _value, _data);
 
             unchecked {
-                balances[_id][_from] = fromBalance - _value;                
+                balances[_id][_from] = balanceFrom - _value;                
             }
             
             balances[_id][_to] += _value;
