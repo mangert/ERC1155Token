@@ -7,9 +7,6 @@ import "./IERC1155.sol";
 */
 interface IERC1155Mintable is IERC1155 {    
     
-
-    function supportsInterface(bytes4 _interfaceId) external view  returns (bool);
-
     /**
      * @notice Creates a new token type and assings _initialSupply to minter
      * @param _initialSupply - initial supply value

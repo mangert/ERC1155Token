@@ -295,9 +295,23 @@ contract ERC1155Test is Test {
         erc1155.create(initialBalance, exampleUri); 
         erc1155.setURI(exampleUri, 1);
     }
-    function test_supportsInterface() public {
-        erc1155.supportsInterface("0x0");
-    }
+    function test_supportsInterface() public {        
+        
+        bytes4 interfaceERC165 = 0x01ffc9a7;
+        bool isERC165 = erc1155.supportsInterface(interfaceERC165);
+        assertEq(isERC165, true); 
 
+        bytes4 interfaceERC1155 = 0xd9b67a26;
+        bool isERC1155 = erc1155.supportsInterface(interfaceERC1155);
+        assertEq(isERC1155, true); 
+
+        bytes4 interfaceERC1155MetadataURI = 0x0e89341c;
+        bool isERC1155MetadataURI = erc1155.supportsInterface(interfaceERC1155MetadataURI);
+        assertEq(isERC1155MetadataURI, true); 
+
+        bytes4 interfaceOther = 0x0e89310c; //левое число
+        bool isInterfaceOther = erc1155.supportsInterface(interfaceOther);
+        assertEq(isInterfaceOther, false);         
+    }
 
 }

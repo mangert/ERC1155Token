@@ -89,7 +89,12 @@ contract ERC1155 is IERC1155, IERC1155MetadataURI, IERC1155Mintable {
     }
 
     //функции интерфейса Mintable (TODO)
-    function supportsInterface(bytes4 _interfaceId) public  view  returns (bool) {return true;}
+    function supportsInterface(bytes4 _interfaceId) external pure returns (bool) {
+        return 
+            _interfaceId == 0x01ffc9a7 || // ERC165
+            _interfaceId == 0xd9b67a26 || // ERC1155
+            _interfaceId == 0x0e89341c;   // ERC1155MetadataURI
+        }
 
     // Creates a new token type and assings _initialSupply to minter
     function create(uint256 _initialSupply, string calldata _uri) public onlyOwner() returns(uint256 _id) {
