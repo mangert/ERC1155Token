@@ -14,10 +14,10 @@ contract ERC1155 is IERC1155, IERC1155MetadataURI, IERC1155Mintable {
     mapping (uint256 _ids => mapping (address _owner => uint256)) private balances;
     mapping (address owner => mapping(address operator => bool)) public isApprovedForAll;
 
-    string private _uri;
-
-    mapping (uint256 id => address creator) public creators;    
+    string[] private _uris;    
+    
     uint256 private nonce;
+    mapping(uint256 => string) private _tokenURIs;
 
     modifier onlyOwner() {
         require(msg.sender == owner, ERC1155NotAnOwner(msg.sender));
@@ -29,7 +29,10 @@ contract ERC1155 is IERC1155, IERC1155MetadataURI, IERC1155Mintable {
     }    
 
     function uri(uint256 _id) external view returns(string memory){
-        return _uri;
+        
+        require(_id != 0 && _id <= nonce, ERC1155NonExistentToken(_id));
+        return _tokenURIs[_id];
+            
     }
 
     //функции интерфейса IERC1155
@@ -88,25 +91,27 @@ contract ERC1155 is IERC1155, IERC1155MetadataURI, IERC1155Mintable {
         _setApprovalForAll(msg.sender, _operator, _approved);
     }
 
-    //функции интерфейса Mintable (TODO)
+    //функции интерфейса ERC165
+    
     function supportsInterface(bytes4 _interfaceId) external pure returns (bool) {
         return 
             _interfaceId == 0x01ffc9a7 || // ERC165
             _interfaceId == 0xd9b67a26 || // ERC1155
             _interfaceId == 0x0e89341c;   // ERC1155MetadataURI
         }
-
+    //функции интерфейса Mintable
     // Creates a new token type and assings _initialSupply to minter
     function create(uint256 _initialSupply, string calldata _uri) public onlyOwner() returns(uint256 _id) {
-        _id = ++nonce;
-        creators[_id] = msg.sender;
+        _id = ++nonce;        
         balances[_id][msg.sender] = _initialSupply;
         
         emit TransferSingle(msg.sender, address(0), msg.sender, _id, _initialSupply);
 
-        if (bytes(_uri).length > 0) //TODO - разобраться, как хранить будем
-            emit URI(_uri, _id);
-        }        
+        if (bytes(_uri).length > 0) {
+            _tokenURIs[_id] = _uri;
+            emit URI(_uri, _id);                     
+            }         
+    }        
 
     // Batch mint tokens. Assign directly to _to[].
     function mint(uint256 _id, address[] calldata _to, uint256[] calldata _quantities) external {
@@ -129,7 +134,13 @@ contract ERC1155 is IERC1155, IERC1155MetadataURI, IERC1155Mintable {
         }
     }      
 
-    function setURI(string calldata _uri, uint256 _id) external {}
+    function setURI(string calldata _uri, uint256 _id) external {
+        
+        require(msg.sender == owner, ERC1155NotAnOwner(msg.sender));
+        
+        _tokenURIs[_id] = _uri;
+        emit URI(_uri, _id);            
+    }
     
     //служебные функции
 
