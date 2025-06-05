@@ -1,66 +1,64 @@
-## Foundry
+# ERC-1155 Token Project (Foundry)
 
-**Foundry is a blazing fast, portable and modular toolkit for Ethereum application development written in Rust.**
+Учебный проект на [Foundry](https://book.getfoundry.sh/), демонстрирующий развёртывание и работу с контрактом ERC-1155.
 
-Foundry consists of:
+## 📦 Структура
 
--   **Forge**: Ethereum testing framework (like Truffle, Hardhat and DappTools).
--   **Cast**: Swiss army knife for interacting with EVM smart contracts, sending transactions and getting chain data.
--   **Anvil**: Local Ethereum node, akin to Ganache, Hardhat Network.
--   **Chisel**: Fast, utilitarian, and verbose solidity REPL.
+```bash
+.
+├── src/
+│   ├── ERC1155.sol                   # Основной контракт ERC-1155
+│   ├── ERC1155Errors.sol            # Пользовательские ошибки
+│   ├── ERC165.sol                   # Реализация интерфейса ERC165
+│   └── интерфейсы (IERC1155*.sol)   # Стандартные интерфейсы
+├── script/
+│   ├── ERC1155.s.sol                # Скрипт деплоя контракта
+│   └── ERC1155CreateScript.s.sol   # Скрипт создания/минта токенов
+├── broadcast/                       # Артефакты выполнения (в `.gitignore`)
+└── README.md
+🚀 Развёртывание
 
-## Documentation
+    Установите зависимости:
 
-https://book.getfoundry.sh/
+forge install
 
-## Usage
+Установите переменные окружения:
 
-### Build
+export PRIVATE_KEY=0x...
+export SEPOLIA_RPC_URL=https://...
+export ETHERSCAN_KEY=...
 
-```shell
-$ forge build
-```
+Деплой контракта:
 
-### Test
+forge script script/ERC1155.s.sol:ERC1155Script \
+  --broadcast \
+  --verify \
+  --rpc-url "$SEPOLIA_RPC_URL" \
+  --etherscan-api-key "$ETHERSCAN_KEY"
 
-```shell
-$ forge test
-```
+Создание токенов:
+В скрипте можно указать адрес контракта вручную либо извлечь его из JSON-отчета (если используется ffi).
 
-### Format
+    forge script script/ERC1155CreateScript.s.sol:ERC1155CreateScript \
+      --broadcast \
+      --rpc-url "$SEPOLIA_RPC_URL"
 
-```shell
-$ forge fmt
-```
+🧪 Примечания
 
-### Gas Snapshots
+    Только владелец контракта может создавать и минтить токены.
 
-```shell
-$ forge snapshot
-```
+    URI токенов указываются напрямую (хранятся на GitHub как JSON).
 
-### Anvil
+    Проект не использует OpenZeppelin — реализован вручную для учебных целей.
 
-```shell
-$ anvil
-```
+🛠 Требования
 
-### Deploy
+    Foundry (установить через foundryup)
 
-```shell
-$ forge script script/Counter.s.sol:CounterScript --rpc-url <your_rpc_url> --private-key <your_private_key>
-```
+    Аккаунт с балансом ETH в сети Sepolia (например, через faucet)
 
-### Cast
+    RPC URL (Alchemy, Infura и др.)
 
-```shell
-$ cast <subcommand>
-```
+📄 Лицензия
 
-### Help
-
-```shell
-$ forge --help
-$ anvil --help
-$ cast --help
-```
+Учебный проект. Используйте свободно.

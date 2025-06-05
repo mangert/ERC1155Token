@@ -290,11 +290,36 @@ contract ERC1155Test is Test {
         erc1155.setApprovalForAll(operator, true);        
     } 
 
-    //other functions  - TODO
+    //other functions
     function test_setUri() public {
+        
         erc1155.create(initialBalance, exampleUri); 
         erc1155.setURI(exampleUri, 1);
+        string memory ex_uri = erc1155.uri(1);
+
+        assertEq(ex_uri, exampleUri);
     }
+
+    function test_setUriRevertedWhen_NonExistentToken() public {
+        
+        erc1155.create(initialBalance, exampleUri); 
+
+        vm.expectRevert(abi.encodeWithSelector(ERC1155NonExistentToken.selector, 2));        
+        erc1155.setURI(exampleUri, 2);
+
+    }
+
+    function test_setUriRevertedWhen_NotAnOwner() public {
+        
+        erc1155.create(initialBalance, exampleUri); 
+
+        vm.expectRevert(abi.encodeWithSelector(ERC1155NotAnOwner.selector, user1));        
+        vm.prank(user1);
+        erc1155.setURI(exampleUri, 1);
+
+    }
+
+
     function test_supportsInterface() public {        
         
         bytes4 interfaceERC165 = 0x01ffc9a7;

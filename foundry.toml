@@ -2,10 +2,14 @@
 src = "src"
 out = "out"
 libs = ["lib"]
+##Foreign Function Interface - чтобы можно было читать файлы
+ffi = true
+
+dotenv = ".env"
 
 ## Sets the concrete solc version to use, this overrides the `auto_detect_solc` value
-# solc = '0.8.29'
-auto_detect_solc = true
+solc = '0.8.29'
+#auto_detect_solc = true
 offline = false
 optimizer = true
 optimizer_runs = 200
@@ -14,5 +18,14 @@ default.fuzz.runs = 256
 
 #включила представления в компиляторе, чтобы стек не переполнялся
 via_ir = true
+
+[rpc_endpoints]
+
+sepolia = "${SEPOLIA_RPC_URL}"
+#SEPOLIA_RPC_URL = "${SEPOLIA_RPC_URL}"
+#PRIVATE_KEY = "${PRIVATE_KEY}"
+#ETHERSCAN_KEY = "{ETHERSCAN_KEY}"
+
+
 
 # See more config options https://github.com/foundry-rs/foundry/blob/master/crates/config/README.md#all-options

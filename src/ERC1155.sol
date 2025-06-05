@@ -137,6 +137,7 @@ contract ERC1155 is IERC1155, IERC1155MetadataURI, IERC1155Mintable {
     function setURI(string calldata _uri, uint256 _id) external {
         
         require(msg.sender == owner, ERC1155NotAnOwner(msg.sender));
+        require(_id != 0 && _id <= nonce, ERC1155NonExistentToken(_id));
         
         _tokenURIs[_id] = _uri;
         emit URI(_uri, _id);            
